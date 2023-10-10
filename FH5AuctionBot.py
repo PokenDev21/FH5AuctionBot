@@ -3,10 +3,15 @@ import time
 import pyautogui
 import random
 from pynput import mouse
+import tkinter as tk
+from tkinter import ttk
+from tkinter.scrolledtext import ScrolledText
+import threading
 
-# Define the exact coordinates of the pixel to check
+# ... (Your pixel checking and key simulation functions)
 
-
+# Define a flag variable to control script execution
+running_flag = False
 
 # Function to check if a pixel is within the specified RGB range
 def is_white(pixel):
@@ -17,8 +22,73 @@ def is_purple(pixel):
     return (47 <= pixel[0] <= 95) and (18 <= pixel[1] <= 75) and (48 <= pixel[2] <= 97)
 # Define a flag variable to control script termination
 stop_flag = False
+# Function to start the script
+def start_script():
+    global running_flag
+    if not running_flag:
+        running_flag = True
+        start_button.config(state=tk.DISABLED)
+        stop_button.config(state=tk.NORMAL)
+        log_text.config(state=tk.NORMAL)
+        log_text.insert(tk.END, "Script has been startedy.\n")
+        run_script()  # Start the script when "Begin" is clicked
+
+# Function to stop the script
+def stop_script():
+    global running_flag
+    running_flag = False
+    start_button.config(state=tk.NORMAL)
+    stop_button.config(state=tk.DISABLED)
+    log_text.insert(tk.END, "Script has been stopped.\n")
+    # Function to stop the script
+def Reset_Console():
+    log_text.delete('1.0', tk.END)
+
+# Function to run the script in a separate thread
+def run_script():
+    def script_runner():
+        while running_flag:
+            if simulate_key_presses():
+                stop_script()
+                break
+        # Ensure the GUI elements are updated correctly
+        root.after(0, lambda: start_button.config(state=tk.NORMAL))
+        root.after(0, lambda: stop_button.config(state=tk.DISABLED))
+
+    script_thread = threading.Thread(target=script_runner)
+    script_thread.start()
 
 
+
+def on_closing():
+    global running_flag
+    running_flag = False
+    root.destroy()
+
+# Create the main application window
+root = tk.Tk()
+root.title("FH5 Auction bot")
+
+# Create a start button
+start_button = ttk.Button(root, text="Begin", command=start_script)
+start_button.pack(pady=10)
+
+# Create a stop button
+stop_button = ttk.Button(root, text="Stop", command=stop_script, state=tk.DISABLED)
+stop_button.pack(pady=10)
+
+# Create a stop button
+Reset_button = ttk.Button(root, text="Reset Console", command=Reset_Console)
+Reset_button.pack(pady=10)
+
+
+# Create a text area to display logs
+log_text = ScrolledText(root, height=10, width=50, wrap=tk.WORD, state=tk.DISABLED)
+log_text.pack(padx=10, pady=10)
+
+root.protocol("WM_DELETE_WINDOW", on_closing)
+
+# ... (Your simulate_key_presses function)
 # Define the function to simulate key presses
 def simulate_key_presses():
     pixel_coords = (510, 297)
@@ -56,6 +126,7 @@ def simulate_key_presses():
                 time.sleep(0.1)
                 return True  # Return True if white pixel is found'''
        
+       
         pixel_coords = (1295 , 557)
         screenshot = ImageGrab.grab(bbox=(pixel_coords[0], pixel_coords[1], pixel_coords[0] + 1, pixel_coords[1] + 1))
         pixel_color = screenshot.getpixel((0, 0))
@@ -72,23 +143,10 @@ def simulate_key_presses():
     time.sleep(sleep_duration)
     return False  # Return False if white pixel is not found
 
-# Callback function to handle mouse events
-def on_click(x, y, button, pressed):
-    global stop_flag  # Access the stop_flag variable
-    if button == mouse.Button.middle and pressed:
-        print("Middle mouse button clicked. Stopping the script.")
-        stop_flag = True  # Set the stop_flag to True to stop the script
-# Start monitoring mouse events
-listener = mouse.Listener(on_click=on_click)
-listener.start()
+root.mainloop()
 
-# Sleep for 5 seconds before starting the loop
-time.sleep(5)
 
-while not stop_flag:
-   
-    if simulate_key_presses():
-        break  # Exit the loop if white pixel is found and macro is executed
 
-# Script will stop when the stop_flag is set to True
-print("Script has been stopped.")
+
+
+
