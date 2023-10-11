@@ -7,7 +7,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
 import threading
-
+import sys
+import os
 
 # Define a flag variable to control script execution
 running_flag = False
@@ -90,7 +91,18 @@ def on_closing():
 # Create the main application window
 root = tk.Tk()
 root.title("FH5 Auction bot")
+# Get the directory where the script or executable is located
+if getattr(sys, 'frozen', False):
+    # This code block is for a frozen (compiled) application (e.g., created with pyinstaller)
+    application_path = os.path.dirname(sys.executable)
+else:
+    # This code block is for a script running in Python
+    application_path = os.path.dirname(__file__)
 
+# Construct the full path to your .ico file
+ico_path = os.path.join(application_path, 'FH5AuctionBot.ico')
+
+root.iconbitmap(default=ico_path)
 # Create a start button
 start_button = ttk.Button(root, text="Begin", command=start_script)
 start_button.pack(pady=10)
@@ -114,8 +126,6 @@ log_text.pack(padx=10, pady=10)
 # Create a stop button
 Reset_button = ttk.Button(root, text="Clear Console", command=Reset_Console)
 Reset_button.pack(pady=10)
-
-
 root.protocol("WM_DELETE_WINDOW", on_closing)
 
 # ... (Your simulate_key_presses function)
