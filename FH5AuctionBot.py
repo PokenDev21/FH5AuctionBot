@@ -134,7 +134,7 @@ def simulate_key_presses():
     InstantExit = False
     # Check for a white pixel during the 5-second delay
     start_time = time.time()
-    while time.time() - start_time <  2:  # Check for 5 seconds
+    while time.time() - start_time <  3:  # Check for 5 seconds
         screenshot = ImageGrab.grab(bbox=(CarFound_pixel_coords[0], CarFound_pixel_coords[1], CarFound_pixel_coords[0] + 1, CarFound_pixel_coords[1] + 1))
         pixel_color = screenshot.getpixel((0, 0))
         if is_white(pixel_color):
