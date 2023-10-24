@@ -1,4 +1,7 @@
 from PIL import ImageGrab
+from tkinter import *
+from tkinter.ttk import *
+from PIL import Image, ImageTk
 import time
 import pyautogui
 import random
@@ -13,6 +16,8 @@ import pygetwindow as gw
 from screeninfo import get_monitors
 # Define a flag variable to control script execution
 running_flag = False
+stop_button_pressed = False
+switch_value = True
 # Initialize reference resolution and multipliers
 reference_resolution = (1920, 1080)
 x_multiplier = 1.0
@@ -31,6 +36,7 @@ stop_flag = False
 script_thread = None
 # Function to start the script
 def start_script():
+    style.theme_use('light')
     global TimeRem_pixel_coords, CarFound_pixel_coords, No_cars_available_pixel_coords, running_flag, x_multiplier,  y_multiplier, script_thread
     TimeRem_pixel_coords = (295 , 370)
     CarFound_pixel_coords = (510, 297)
@@ -58,9 +64,14 @@ def start_script():
         log_text.insert(tk.END, f"Set resolution: {chosen_resolution}\n")
         log_text.insert(tk.END, f"Enter ForzaHorizon5.exe to begin script\n")
         log_text.insert(tk.END, f"UI Scale: {x_multiplier}x {y_multiplier}y\n")
+        log_text.insert(tk.END, f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+        log_text.see(tk.END)  # Scroll to the end of the text widget
+        stop_button_pressed
         root.after(100, run_script)  # Start the script after 5 seconds
 # Function to stop the script
 def stop_script():
+    global stop_button_pressed
+    stop_button_pressed = True
     global running_flag
     running_flag = False
     start_button.config(state=tk.NORMAL)
@@ -69,6 +80,7 @@ def stop_script():
     stop_button.config(state=tk.DISABLED)
     log_text.insert(tk.END, "Script has been stopped.\n")
     log_text.insert(tk.END, f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
+    log_text.see(tk.END)  # Scroll to the end of the text widget
     # Function to stop the script
 def Reset_Console():
     log_text.delete('1.0', tk.END)
@@ -81,7 +93,7 @@ def run_script():
         root.update()  # Update the GUI to display the message
         while running_flag:
             if simulate_key_presses():
-                if not get_repeat_after_buyout_state():
+                if not get_repeat_after_buyout_state:
                     stop_script()
                 break
         if get_repeat_after_buyout_state():
@@ -96,7 +108,8 @@ def run_script():
                 if running_flag:
                     script_runner()
         else:  
-            stop_script()
+            if not stop_button_pressed:
+                stop_script()
             # Ensure the GUI elements are updated correctly
             root.after(0, lambda: start_button.config(state=tk.NORMAL))
             root.after(0, lambda: stop_button.config(state=tk.DISABLED))
@@ -117,32 +130,47 @@ root.title("FH5 Auction bot")
 root.geometry("435x325")  # Set the width and height to your preferred values
 # Set the window close event handler
 root.protocol("WM_DELETE_WINDOW", on_closing)
+'''
+#Icon#
 # Define the URL of the image you want to use as an icon
 image_url = "https://drive.google.com/uc?export=download&id=1ZN0HqNSdIhowq59Xu-3IbQfATefGSITu"
-
 # Download the image from the URL
 response = requests.get(image_url)
 image_data = response.content
-
 # Create a PhotoImage object from the downloaded image data
 image = Image.open(io.BytesIO(image_data))
 photo = ImageTk.PhotoImage(image)
 root.iconphoto(True, photo)
+'''
+####
+# Light image import
+image_url_light = "https://i.imgur.com/nEgl2Qg.png"
+response_light = requests.get(image_url_light)
+image_data_light = response_light.content
+light = Image.open(io.BytesIO(image_data_light))
+desired_width = 80
+desired_height = 40
+light = ImageTk.PhotoImage(light.resize((desired_width, desired_height)))
 
-repeat_after_buyout_var = tk.BooleanVar(value=False)
-
+# Dark image import
+image_url_dark = "https://i.imgur.com/rywsJbO.png"
+response_dark = requests.get(image_url_dark)
+image_data_dark = response_dark.content
+dark = Image.open(io.BytesIO(image_data_dark))
+dark = ImageTk.PhotoImage(dark.resize((desired_width, desired_height)))
 
 # Create a ttk.Sizegrip to allow window resizing with a 1:1 ratio
 sizegrip = ttk.Sizegrip(root)
 sizegrip.grid(row=999, column=999, sticky='se')
 
-# Create a start button
-start_button = ttk.Button(root, text="Begin", command=start_script)
-start_button.grid(row=0, column=0, padx=10, pady=10,columnspan=2)
+# Create a start button with added padding
+start_button = ttk.Button(root, text="Begin", command=start_script, padding=(25, 0))
+start_button.grid(row=0, column=0, padx=(10, 5), pady=10, columnspan=2)
 
-# Create a stop button
-stop_button = ttk.Button(root, text="Stop", command=stop_script, state=tk.DISABLED)
-stop_button.grid(row=0, column=1, padx=10, pady=10,columnspan=2)
+# Create a stop button with added padding
+stop_button = ttk.Button(root, text="Stop", command=stop_script, state=tk.DISABLED, padding=(25, 0))
+stop_button.grid(row=0, column=1, padx=(5, 10), pady=10, columnspan=2)
+
 
 # Get the user's screen resolution
 user_resolution = f"{root.winfo_screenwidth()}x{root.winfo_screenheight()}"
@@ -160,6 +188,8 @@ resolution_dropdown.grid(row=1, column=1, padx=10, pady=10)
 def get_repeat_after_buyout_state():
     return repeat_after_buyout_var.get()
 
+
+repeat_after_buyout_var = tk.BooleanVar()
 # Create the "Repeat after Buyout" toggle button
 repeat_after_buyout_button = ttk.Checkbutton(root, text="Repeat after Buyout", variable=repeat_after_buyout_var)
 repeat_after_buyout_button.grid(row=1, column=2, padx=10, pady=10)
@@ -170,70 +200,235 @@ log_text.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
 
 # Create a "Clear Console" button
 Reset_button = ttk.Button(root, text="Clear Console", command=Reset_Console)
-Reset_button.grid(row=3, column=1, padx=10, pady=10, columnspan=1, sticky='n')
+Reset_button.grid(row=3, column=1, padx=10, pady=15, columnspan=1, sticky='n')
+# Defining a function to toggle between light and dark theme
+
+# Define a flag variable for theme selection
+light_theme = True
+# Create a ttk Style object
+# Function to toggle between light and dark theme
+def toggle():
+    global light_theme
+    if light_theme:
+        switch.config(image=dark)
+        style.theme_use('dark')
+        switch_button.config(style="Dark.TButton")
+        root.config(bg="#2b2b2b")
+    else:
+        switch.config(image=light)
+        style.theme_use('light')
+        switch_button.config(style="Light.TButton")
+        root.config(bg="white")
+    light_theme = not light_theme
+# Create a ttk Style object
+style = ttk.Style()
+
+# Create a "switch" button to toggle themes
+switch = ttk.Button(root, image=light, command=toggle)
+switch.grid(row=3, column=2, padx=10, pady=0, columnspan=1, sticky='n')
 
 
-# Define the function to simulate key presses
+
+# Initialize the button style based on the initial theme
+if light_theme:
+    switch_button = switch
+else:
+    switch_button = switch
+    toggle()  # Apply dark mode initially
+
 def simulate_key_presses():
     active_window = gw.getActiveWindow()
-    if active_window.title == forza_horizon_window_title:    
+    if active_window.title == forza_horizon_window_title:
         pixel_coords = (510, 297)
         screenshot = ImageGrab.grab(bbox=(pixel_coords[0], pixel_coords[1], pixel_coords[0] + 1, pixel_coords[1] + 1))
         pixel_color = screenshot.getpixel((0, 0))
         WhitePixelFound = is_white(pixel_color)  # Initialize a flag for the white pixel
+        current_time = time.strftime("%H:%M:%S")  # Get the current time as a timestamp
+
         # Simulate pressing Enter twice
         if not WhitePixelFound:
             pyautogui.press('enter')
             sleep_duration = random.uniform(0.37, 0.38)
             time.sleep(sleep_duration)
             pyautogui.press('enter')
+            
         InstantExit = False
+
         # Check for a white pixel during the 5-second delay
         start_time = time.time()
-        while time.time() - start_time <  3:  # Check for 5 seconds
+        while time.time() - start_time < 3:  # Check for 5 seconds
             screenshot = ImageGrab.grab(bbox=(CarFound_pixel_coords[0], CarFound_pixel_coords[1], CarFound_pixel_coords[0] + 1, CarFound_pixel_coords[1] + 1))
             pixel_color = screenshot.getpixel((0, 0))
             if is_white(pixel_color):
                 if not WhitePixelFound:
-                    log_text.insert(tk.END, "Car Found!\n")
-                WhitePixelFound = True      
+                    log_text.insert(tk.END, f"[{current_time}] Car Found!\n")
+                    log_text.see(tk.END)  # Scroll to the end of the text widget
+                WhitePixelFound = True
                 screenshot = ImageGrab.grab(bbox=(TimeRem_pixel_coords[0], TimeRem_pixel_coords[1], TimeRem_pixel_coords[0] + 1, TimeRem_pixel_coords[1] + 1))
                 pixel_color = screenshot.getpixel((0, 0))
                 if is_purple(pixel_color):
-                    log_text.insert(tk.END, "Attempting Buyout\n")
+                    log_text.insert(tk.END, f"[{current_time}] Attempting Buyout\n")
+                    log_text.see(tk.END)  # Scroll to the end of the text widget
                     # Simulate pressing 'Y' and then 'Enter' keys
                     pyautogui.press('y')
-                    time.sleep(random.uniform(0.15,0.16))
+                    time.sleep(random.uniform(0.15, 0.16))
                     pyautogui.press('down')
-                    time.sleep(random.uniform(0.11,0.12))
+                    time.sleep(random.uniform(0.11, 0.12))
                     pyautogui.press('enter')
-                    time.sleep(random.uniform(0.19,0.2))
+                    time.sleep(random.uniform(0.19, 0.2))
                     pyautogui.press('enter')
                     time.sleep(0.1)
                     return True  # Return True if white pixel is found
-       
-       
-            screenshot = ImageGrab.grab(bbox=(No_cars_available_pixel_coords[0], No_cars_available_pixel_coords[1],No_cars_available_pixel_coords[0] + 1, No_cars_available_pixel_coords[1] + 1))
+
+            screenshot = ImageGrab.grab(bbox=(No_cars_available_pixel_coords[0], No_cars_available_pixel_coords[1], No_cars_available_pixel_coords[0] + 1, No_cars_available_pixel_coords[1] + 1))
             pixel_color = screenshot.getpixel((0, 0))
             if is_white(pixel_color):
                 pyautogui.press('esc')
                 InstantExit = True
                 break
+
         # Simulate pressing Escape
         if not WhitePixelFound:
             if not InstantExit:
-                time.sleep(random.uniform(0.05,0.07))
+                time.sleep(random.uniform(0.05, 0.07))
                 pyautogui.press('esc')
-        sleep_duration = random.uniform(0.74,0.75)
+
+        sleep_duration = random.uniform(0.74, 0.75)
         time.sleep(sleep_duration)
-        return False  # Return False if white pixel is not found
+        return False  # Return False if the white pixel is not found
     else:
         # Handle the case when the active window is not Forza Horizon 5
         time.sleep(0.5)
         return False
+#Light theme
+# Light theme
+# Light theme with the same widget formatting as the dark theme
+light_theme = {
+    ".": {
+        "configure": {
+            "background": "white",  # White background
+            "foreground": "black",  # Black text
+        }
+    },
+    "TLabel": {
+        "configure": {
+            "foreground": "black",  # Black text
+        }
+    },
+    "TButton": {
+        "configure": {
+            "background": "white",  # Light grey button
+            "foreground": "black",  # Black text
+            "bordercolor": "black",  # Black border
+            "borderwidth": 2,  # Increase border width for rounded appearance
+            "relief": "groove",  # Add a ridge border
+            "bordercolor": "#d7d7d7",  # Set the border color to white
+            "highlightthickness": 1,  # Remove border highlighting
+            "highlightbackground": "#d1d1d1",  # Match the border color to the button background
+        },
+        "map": {
+            "foreground": [
+                ("disabled", "gray"),   # Set the text color to gray when disabled
+                ("active", "gray")     # Set the text color to gray when active (hover)
+            ]
+        }
+    },
+    "TEntry": {
+        "configure": {
+            "background": "white",  # White background
+            "foreground": "black",  # Black text
+            "fieldbackground": "#F5F5F5",
+            "insertcolor": "black",
+            "bordercolor": "grey",
+            "lightcolor": "#F5F5F5",
+            "darkcolor": "grey",
+        },
+        
+    },
+    "TCombobox": {
+        "configure": {
+            "background": "white",  # White background
+            "foreground": "black",  # Black text
+            "fieldbackground": "#F5F5F5",
+            "insertcolor": "black",
+            "bordercolor": "#bababa",
+            "lightcolor": "#F5F5F5",
+            "darkcolor": "grey",
+            "arrowcolor": "black",
+            
+        },
+        "map": {
+            "foreground": [
+                ("disabled", "gray"),   # Set the text color to gray when disabled
+                ("active", "gray")     # Set the text color to gray when active (hover)
+            ]
+        }
+    },
+}
+
+#Dark theme
+dark_theme = {
+    ".": { 
+        "configure": {
+            "background": "#2d2d2d",  # Dark grey background
+            "foreground": "white",    # White text
+        }
+    },
+    "TLabel": {
+        "configure": {
+            "foreground": "white",    # White text
+        }
+    },
+    "TButton": {
+        "configure": {
+            "background": "#3c3f41",  # Dark blue-grey button
+            "foreground": "white",    # White text
+        }
+    },
+    "TEntry": {
+        "configure": {
+            "background": "#2d2d2d",  # Dark grey background
+            "foreground": "white",    # White text
+            "fieldbackground" : "#4d4d4d",
+            "insertcolor": "white",
+            "bordercolor" : "black",
+            "lightcolor" : "#4d4d4d",
+            "darkcolor" : "black",
+        }
+        
+    },
+    
+    "TCombobox": {
+        "configure": {
+            "background": "#2d2d2d",  # Dark grey background
+            "foreground": "white",    # White text
+            "fieldbackground" : "#4d4d4d",
+            "insertcolor": "white",
+            "bordercolor" : "black",
+            "lightcolor" : "#4d4d4d",
+            "darkcolor" : "black",
+            "arrowcolor" : "white"
+        },
+    },
+    "TScrolledText": {
+        "configure": {
+            "background": "black",      # Dark grey background
+            "foreground": "black",        # White text
+            "bordercolor": "black"
+        }
+    }
+    
+}
+ 
+root.option_add("*TCombobox*Listbox*Background", "black")
+root.option_add("*TCombobox*Listbox*Foreground", "white")
+ 
+style = ttk.Style()
+style.theme_create('dark', parent="clam", settings=dark_theme)
+style.theme_create('light', parent="clam", settings=light_theme)
+style.theme_use('light')
+
 root.mainloop()
-
-
 
 
 
