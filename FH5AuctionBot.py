@@ -14,6 +14,7 @@ import requests
 import io
 import pygetwindow as gw
 from screeninfo import get_monitors
+import sv_ttk
 # Define a flag variable to control script execution
 running_flag = False
 stop_button_pressed = False
@@ -36,7 +37,6 @@ stop_flag = False
 script_thread = None
 # Function to start the script
 def start_script():
-    style.theme_use('light')
     global TimeRem_pixel_coords, CarFound_pixel_coords, No_cars_available_pixel_coords, running_flag, x_multiplier,  y_multiplier, script_thread
     TimeRem_pixel_coords = (295 , 370)
     CarFound_pixel_coords = (510, 297)
@@ -417,7 +417,6 @@ dark_theme = {
             "bordercolor": "black"
         }
     }
-    
 }
  
 root.option_add("*TCombobox*Listbox*Background", "black")
@@ -426,8 +425,7 @@ root.option_add("*TCombobox*Listbox*Foreground", "white")
 style = ttk.Style()
 style.theme_create('dark', parent="clam", settings=dark_theme)
 style.theme_create('light', parent="clam", settings=light_theme)
-style.theme_use('light')
-
+sv_ttk.set_theme("dark")
 root.mainloop()
 
 
