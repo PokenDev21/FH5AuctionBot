@@ -127,10 +127,10 @@ def on_closing():
 # Create the main application window
 root = tk.Tk()
 root.title("FH5 Auction bot")
-root.geometry("435x325")  # Set the width and height to your preferred values
+root.geometry("510x350")  # Set the width and height to your preferred values
 # Set the window close event handler
 root.protocol("WM_DELETE_WINDOW", on_closing)
-'''
+
 #Icon#
 # Define the URL of the image you want to use as an icon
 image_url = "https://drive.google.com/uc?export=download&id=1ZN0HqNSdIhowq59Xu-3IbQfATefGSITu"
@@ -141,7 +141,7 @@ image_data = response.content
 image = Image.open(io.BytesIO(image_data))
 photo = ImageTk.PhotoImage(image)
 root.iconphoto(True, photo)
-'''
+
 ####
 # Light image import
 image_url_light = "https://i.imgur.com/nEgl2Qg.png"
@@ -201,30 +201,23 @@ log_text.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
 # Create a "Clear Console" button
 Reset_button = ttk.Button(root, text="Clear Console", command=Reset_Console)
 Reset_button.grid(row=3, column=1, padx=10, pady=15, columnspan=1, sticky='n')
-# Defining a function to toggle between light and dark theme
-
 # Define a flag variable for theme selection
-light_theme = True
-# Create a ttk Style object
+light_theme = False
 # Function to toggle between light and dark theme
 def toggle():
     global light_theme
     if light_theme:
         switch.config(image=dark)
-        style.theme_use('dark')
-        switch_button.config(style="Dark.TButton")
-        root.config(bg="#2b2b2b")
+        sv_ttk.set_theme("dark")
     else:
         switch.config(image=light)
-        style.theme_use('light')
-        switch_button.config(style="Light.TButton")
-        root.config(bg="white")
+        sv_ttk.set_theme("light")
     light_theme = not light_theme
 # Create a ttk Style object
 style = ttk.Style()
 
 # Create a "switch" button to toggle themes
-switch = ttk.Button(root, image=light, command=toggle)
+switch = ttk.Button(root, image=dark, command=toggle)
 switch.grid(row=3, column=2, padx=10, pady=0, columnspan=1, sticky='n')
 
 
@@ -232,9 +225,9 @@ switch.grid(row=3, column=2, padx=10, pady=0, columnspan=1, sticky='n')
 # Initialize the button style based on the initial theme
 if light_theme:
     switch_button = switch
+    toggle()  # Apply dark mode initially
 else:
     switch_button = switch
-    toggle()  # Apply dark mode initially
 
 def simulate_key_presses():
     active_window = gw.getActiveWindow()
@@ -300,131 +293,12 @@ def simulate_key_presses():
         # Handle the case when the active window is not Forza Horizon 5
         time.sleep(0.5)
         return False
-#Light theme
-# Light theme
-# Light theme with the same widget formatting as the dark theme
-light_theme = {
-    ".": {
-        "configure": {
-            "background": "white",  # White background
-            "foreground": "black",  # Black text
-        }
-    },
-    "TLabel": {
-        "configure": {
-            "foreground": "black",  # Black text
-        }
-    },
-    "TButton": {
-        "configure": {
-            "background": "white",  # Light grey button
-            "foreground": "black",  # Black text
-            "bordercolor": "black",  # Black border
-            "borderwidth": 2,  # Increase border width for rounded appearance
-            "relief": "groove",  # Add a ridge border
-            "bordercolor": "#d7d7d7",  # Set the border color to white
-            "highlightthickness": 1,  # Remove border highlighting
-            "highlightbackground": "#d1d1d1",  # Match the border color to the button background
-        },
-        "map": {
-            "foreground": [
-                ("disabled", "gray"),   # Set the text color to gray when disabled
-                ("active", "gray")     # Set the text color to gray when active (hover)
-            ]
-        }
-    },
-    "TEntry": {
-        "configure": {
-            "background": "white",  # White background
-            "foreground": "black",  # Black text
-            "fieldbackground": "#F5F5F5",
-            "insertcolor": "black",
-            "bordercolor": "grey",
-            "lightcolor": "#F5F5F5",
-            "darkcolor": "grey",
-        },
-        
-    },
-    "TCombobox": {
-        "configure": {
-            "background": "white",  # White background
-            "foreground": "black",  # Black text
-            "fieldbackground": "#F5F5F5",
-            "insertcolor": "black",
-            "bordercolor": "#bababa",
-            "lightcolor": "#F5F5F5",
-            "darkcolor": "grey",
-            "arrowcolor": "black",
-            
-        },
-        "map": {
-            "foreground": [
-                ("disabled", "gray"),   # Set the text color to gray when disabled
-                ("active", "gray")     # Set the text color to gray when active (hover)
-            ]
-        }
-    },
-}
 
-#Dark theme
-dark_theme = {
-    ".": { 
-        "configure": {
-            "background": "#2d2d2d",  # Dark grey background
-            "foreground": "white",    # White text
-        }
-    },
-    "TLabel": {
-        "configure": {
-            "foreground": "white",    # White text
-        }
-    },
-    "TButton": {
-        "configure": {
-            "background": "#3c3f41",  # Dark blue-grey button
-            "foreground": "white",    # White text
-        }
-    },
-    "TEntry": {
-        "configure": {
-            "background": "#2d2d2d",  # Dark grey background
-            "foreground": "white",    # White text
-            "fieldbackground" : "#4d4d4d",
-            "insertcolor": "white",
-            "bordercolor" : "black",
-            "lightcolor" : "#4d4d4d",
-            "darkcolor" : "black",
-        }
-        
-    },
-    
-    "TCombobox": {
-        "configure": {
-            "background": "#2d2d2d",  # Dark grey background
-            "foreground": "white",    # White text
-            "fieldbackground" : "#4d4d4d",
-            "insertcolor": "white",
-            "bordercolor" : "black",
-            "lightcolor" : "#4d4d4d",
-            "darkcolor" : "black",
-            "arrowcolor" : "white"
-        },
-    },
-    "TScrolledText": {
-        "configure": {
-            "background": "black",      # Dark grey background
-            "foreground": "black",        # White text
-            "bordercolor": "black"
-        }
-    }
-}
  
 root.option_add("*TCombobox*Listbox*Background", "black")
 root.option_add("*TCombobox*Listbox*Foreground", "white")
  
 style = ttk.Style()
-style.theme_create('dark', parent="clam", settings=dark_theme)
-style.theme_create('light', parent="clam", settings=light_theme)
 sv_ttk.set_theme("dark")
 root.mainloop()
 
